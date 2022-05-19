@@ -10,7 +10,3 @@ My Arduino Code for Gameshow Quizbuzzers
 - Wires
 - Universal Prototype Cases
 - Prototyping Circuit Boards
-
-
-····hello
-····hello
