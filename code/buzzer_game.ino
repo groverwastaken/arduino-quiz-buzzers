@@ -9,7 +9,7 @@ int buttonStateGruen = 0;
 int resetButtonState = 0;
 
 //Prestate currently not used
-//int prestate = 0;
+int prestate = 0;
 
 //Define the Buzzer Pin and the Soundfrequency
 int buzzer = 10;
@@ -44,6 +44,16 @@ int resetPin = 11;
 int pinFalsch = 12;
 int pinRichtig = 13;
 
+int gruenPressed = 0;
+int blauPressed = 0;
+int gelbPressed = 0;
+int rotPressed = 0;
+
+int gruenWrong = 0;
+int blauWrong = 0;
+int gelbWrong = 0;
+int rotWrong = 0;
+
 void setup() {
   // put your setup code here, to run once:
   
@@ -77,23 +87,24 @@ void setup() {
   
   pinMode(ledRichtig, OUTPUT);
   pinMode(ledFalsch, OUTPUT);
-  
-  
+
   Serial.begin(9600);
   digitalWrite(ledRichtig, LOW);
   digitalWrite(ledFalsch, LOW);
   cute.init(buzzer);
+
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
- buttonStateRot = digitalRead(pinRot);
- buttonStateGelb = digitalRead(pinGelb);
- buttonStateBlau = digitalRead(pinBlau);
- buttonStateGruen = digitalRead(pinGruen);
- resetButtonState = digitalRead(resetPin);
 
+
+  buttonStateRot = digitalRead(pinRot);
+  buttonStateGelb = digitalRead(pinGelb);
+  buttonStateBlau = digitalRead(pinBlau);
+  buttonStateGruen = digitalRead(pinGruen);
+  resetButtonState = digitalRead(resetPin);
+  
   if(resetButtonState == HIGH) {
     delay(100);
     digitalWrite(buttonRot, HIGH);
@@ -105,21 +116,31 @@ void loop() {
     digitalWrite(ledBlau, HIGH);
     digitalWrite(ledGruen, HIGH);
     cute.play(S_CONNECTION);
-    delay(50);
+    delay(150);
     digitalWrite(ledRot, LOW);
     digitalWrite(ledGelb, LOW);
     digitalWrite(ledBlau, LOW);
     digitalWrite(ledGruen, LOW);
+    gruenPressed = 0;
+    blauPressed = 0;
+    gelbPressed = 0;
+    rotPressed = 0;
+    gruenWrong = 0;
+    blauWrong = 0;
+    gelbWrong = 0;
+    rotWrong = 0;
   }
-  
 
 
-  if(buttonStateRot == HIGH) {
+  if(buttonStateRot == HIGH && rotPressed == 0) {
     digitalWrite(buttonGelb, LOW);
     digitalWrite(buttonBlau, LOW);
     digitalWrite(buttonGruen, LOW);
+    digitalWrite(ledRichtig, LOW);
+    digitalWrite(ledFalsch, LOW);
     digitalWrite(ledRot, HIGH);
     tone(buzzer, buzzersound, 500);
+    rotPressed = 1;
   }
 
   
@@ -127,8 +148,11 @@ void loop() {
     digitalWrite(buttonRot, LOW);
     digitalWrite(buttonBlau, LOW);
     digitalWrite(buttonGruen, LOW);
+    digitalWrite(ledRichtig, LOW);
+    digitalWrite(ledFalsch, LOW);
     digitalWrite(ledGelb, HIGH);
     tone(buzzer, buzzersound, 500);
+    gelbPressed = 1;
   }
 
   
@@ -136,8 +160,11 @@ void loop() {
     digitalWrite(buttonGelb, LOW);
     digitalWrite(buttonRot, LOW);
     digitalWrite(buttonGruen, LOW);
+    digitalWrite(ledRichtig, LOW);
+    digitalWrite(ledFalsch, LOW);
     digitalWrite(ledBlau, HIGH);
     tone(buzzer, buzzersound, 500);
+    blauPressed = 1;
   }
 
   
@@ -145,8 +172,11 @@ void loop() {
     digitalWrite(buttonGelb, LOW);
     digitalWrite(buttonBlau, LOW);
     digitalWrite(buttonRot, LOW);
+    digitalWrite(ledRichtig, LOW);
+    digitalWrite(ledFalsch, LOW);
     digitalWrite(ledGruen, HIGH);
     tone(buzzer, buzzersound, 500);
+    gruenPressed = 1;
   }
 
   if(digitalRead(pinRichtig) == HIGH) {
@@ -154,14 +184,128 @@ void loop() {
     cute.play(S_BUTTON_PUSHED);
     delay(1000);
     digitalWrite(ledRichtig, LOW);
-    
+    digitalWrite(buttonGelb, HIGH);
+    digitalWrite(buttonBlau, HIGH);
+    digitalWrite(buttonRot, HIGH);
+    digitalWrite(buttonGruen, HIGH);
+    digitalWrite(ledGruen, LOW);
+    digitalWrite(ledBlau, LOW);
+    digitalWrite(ledGelb, LOW);
+    digitalWrite(ledRot, LOW);
+    gruenPressed = 0;
+    blauPressed = 0;
+    gelbPressed = 0;
+    rotPressed = 0;
+    gruenWrong = 0;
+    blauWrong = 0;
+    gelbWrong = 0;
+    rotWrong = 0;
   }
 
-  if(digitalRead(pinFalsch) == HIGH) {
+
+  if(digitalRead(pinFalsch) == HIGH && rotPressed == 1) {
     digitalWrite(ledFalsch, HIGH);
+    digitalWrite(buttonRot, LOW);
     cute.play(S_OHOOH);
     delay(1000);
     digitalWrite(ledFalsch, LOW);
+    digitalWrite(ledRot, LOW);
+    digitalWrite(buttonGelb, HIGH);
+    digitalWrite(buttonBlau, HIGH);
+    digitalWrite(buttonGruen, HIGH);
+    rotPressed = 0;
+    rotWrong = 1;
   }
+
+
+    if(digitalRead(pinFalsch) == HIGH && gelbPressed == 1) {
+    digitalWrite(ledFalsch, HIGH);
+    digitalWrite(buttonGelb, LOW);
+    cute.play(S_OHOOH);
+    delay(1000);
+    digitalWrite(ledFalsch, LOW);
+    digitalWrite(ledGelb, LOW);
+    digitalWrite(buttonRot, HIGH);
+    digitalWrite(buttonBlau, HIGH);
+    digitalWrite(buttonGruen, HIGH);
+    gelbPressed = 0;
+    gelbWrong = 1;
+  }
+
   
+  if(digitalRead(pinFalsch) == HIGH && blauPressed == 1) {
+    digitalWrite(ledFalsch, HIGH);
+    digitalWrite(buttonBlau, LOW);
+    cute.play(S_OHOOH);
+    delay(1000);
+    digitalWrite(ledFalsch, LOW);
+    digitalWrite(ledBlau, LOW);
+    digitalWrite(buttonGelb, HIGH);
+    digitalWrite(buttonRot, HIGH);
+    digitalWrite(buttonGruen, HIGH);
+    blauPressed = 0;
+    blauWrong = 1;
+  }
+
+  
+  if(digitalRead(pinFalsch) == HIGH && gruenPressed == 1) {
+    digitalWrite(ledFalsch, HIGH);
+    digitalWrite(buttonGruen, LOW);
+    cute.play(S_OHOOH);
+    delay(1000);
+    digitalWrite(ledFalsch, LOW);
+    digitalWrite(ledGruen, LOW);
+    digitalWrite(buttonGelb, HIGH);
+    digitalWrite(buttonBlau, HIGH);
+    digitalWrite(buttonRot, HIGH);
+    gruenPressed = 0;
+    gruenWrong = 1;
+  }
+
+
+  if(rotWrong == 1) {
+    digitalWrite(buttonRot, LOW);
+  }
+
+  if(gelbWrong == 1) {
+    digitalWrite(buttonGelb, LOW);
+  }
+
+  if(blauWrong == 1) {
+    digitalWrite(buttonBlau, LOW);
+  }
+
+  if(gruenWrong == 1) {
+    digitalWrite(buttonGruen, LOW);
+  }
+
+
+  if(rotWrong == 1 && gelbWrong == 1 && blauWrong == 1 && gruenWrong == 1) {
+    delay(100);
+    cute.play(S_FART3);
+    digitalWrite(buttonRot, HIGH);
+    digitalWrite(ledGelb, HIGH);
+    digitalWrite(ledBlau, HIGH);
+    digitalWrite(ledGruen, HIGH);
+    delay(150);
+    digitalWrite(ledRot, LOW);
+    digitalWrite(ledGelb, LOW);
+    digitalWrite(ledBlau, LOW);
+    digitalWrite(ledGruen, LOW);
+    delay(150);
+    digitalWrite(buttonRot, HIGH);
+    digitalWrite(ledGelb, HIGH);
+    digitalWrite(ledBlau, HIGH);
+    digitalWrite(ledGruen, HIGH);
+    delay(150);
+    digitalWrite(ledRot, LOW);
+    digitalWrite(ledGelb, LOW);
+    digitalWrite(ledBlau, LOW);
+    digitalWrite(ledGruen, LOW);
+    gruenWrong = 0;
+    blauWrong = 0;
+    gelbWrong = 0;
+    rotWrong = 0;
+  }
+
 }
